@@ -1,0 +1,17 @@
+plugins {
+	id 'com.axelor.app'
+}
+
+apply from: "../version.gradle"
+
+apply {
+	version = openSuiteVersion
+}
+
+axelor {
+	title "Axelor Script"
+}
+
+dependencies {
+	api project(":modules:axelor-base")
+}
