@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_6.1.xsd">
+
+    <grid name="axelor.management.role.grid" title="Roles" model="com.axelor.auth.db.Role">
+        <field name="name" title="Name"/>
+    </grid>
+
+    <form name="axelor.management.role.form" title="Role" model="com.axelor.auth.db.Role" width="large">
+        <panel-tabs>
+            <panel title="Permissions">
+                <panel-related colSpan="12" name="PanelPermission" field="permissions" height="700" form-view="false"
+                               grid-view="axelor.management.permission.grid" canEdit="true" editable="true"/>
+            </panel>
+            <panel title="Fields">
+                <panel-related name="PanelField" colSpan="12" field="metaPermissions" height="700" form-view="false"
+                               grid-view="axelor.management.field.grid" canEdit="true" editable="true"/>
+            </panel>
+        </panel-tabs>
+    </form>
+
+    <grid name="axelor.management.permission.grid" width="large" edit-icon="false" title="Permissions" editable="true"
+          model="com.axelor.auth.db.Permission">
+        <field name="description" readonly="true"/>
+        <field name="canRead"/>
+        <field name="canWrite"/>
+        <field name="canCreate"/>
+        <field name="canRemove"/>
+        <field name="canExport"/>
+    </grid>
+
+    <grid name="axelor.management.field.grid" width="large" edit-icon="false" title="Permissions" editable="true"
+          model="com.axelor.meta.db.MetaPermission">
+        <field name="name" readonly="true"/>
+    </grid>
+
+</object-views>
