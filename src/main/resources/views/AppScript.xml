@@ -6,10 +6,14 @@
     <form title="App Script" name="app-script-config-form"
           model="com.axelor.studio.db.AppScript" canDelete="false" canNew="false" width="large">
         <panel name="defaultParameters" itemSpan="12">
-            <button name="importPermissions" onClick="" title="Import Permissions"/>
-            <button name="importFields" onClick="" title="Import Fields"/>
+            <button name="importPermissions" onClick="axelor-script-generate-permission" title="Generate Permissions"/>
+            <button name="importFields" onClick="" title="Generate Fields"/>
         </panel>
 
     </form>
+
+    <action-method name="axelor-script-generate-permission">
+        <call class="com.axelor.script.web.PermissionController" method="generatePermission"/>
+    </action-method>
 
 </object-views>
