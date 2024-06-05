@@ -7,56 +7,100 @@ import com.axelor.auth.db.repo.RoleRepository;
 import com.axelor.meta.db.MetaModel;
 import com.axelor.meta.db.repo.MetaModelRepository;
 import com.axelor.script.service.PermissionService;
+import com.axelor.studio.db.App;
+import com.axelor.studio.db.AppScript;
+import com.axelor.studio.db.repo.AppRepository;
+import com.axelor.studio.db.repo.AppScriptRepository;
 import com.google.inject.Inject;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.transaction.Transactional;
+import java.util.HashSet;
 import java.util.List;
-
-import org.slf4j.Logger;
+import java.util.Set;
+import java.util.Optional;
 
 public class PermissionServiceImpl implements PermissionService {
 
     private final RoleRepository roleRepository;
     private final PermissionRepository permissionRepository;
     private final MetaModelRepository modelRepository;
+    private final AppRepository appRepository;
+    private final AppScriptRepository appScriptRepository;
     private static final Logger logger = LoggerFactory.getLogger(PermissionServiceImpl.class);
 
     @Inject
-    public PermissionServiceImpl(RoleRepository roleRepository, PermissionRepository permissionRepository, MetaModelRepository modelRepository) {
+    public PermissionServiceImpl(RoleRepository roleRepository, PermissionRepository permissionRepository,
+                                 MetaModelRepository modelRepository, AppRepository appRepository,
+                                 AppScriptRepository appScriptRepository) {
         this.roleRepository = roleRepository;
         this.permissionRepository = permissionRepository;
         this.modelRepository = modelRepository;
+        this.appRepository = appRepository;
+        this.appScriptRepository = appScriptRepository;
     }
 
     @Override
-    public void generateMetaPermissions() {
+    public void generateMetaPermissions(List<MetaModel> models) {
         logger.info("Starting generating meta permissions...");
 
-        List<Role> roles = roleRepository.all().fetch();
-        List<MetaModel> models = modelRepository.all().fetch();
+        if (models == null || models.isEmpty()) {
+            logger.warn("No models provided for generating meta permissions.");
+            return;
+        }
 
-        roles.forEach(role -> models.forEach(model -> generatePermission(role, model)));
+        models.stream()
+                .filter(MetaModel::isSelected)
+                .forEach(model -> roleRepository.all().fetch()
+                        .forEach(role -> generatePermission(role, model)));
 
         logger.info("Finished generating meta permissions.");
     }
 
-    private void generatePermission(Role role, MetaModel metaModel) {
-        String permissionName = role.getName() + "." + metaModel.getName();
-        if (permissionRepository.findByName(permissionName) == null) {
-            Permission permission = new Permission();
-            permission.setCanCreate(true);
-            permission.setCanRead(true);
-            permission.setCanExport(true);
-            permission.setCanWrite(true);
-            permission.setCanRemove(true);
-            permission.setName(permissionName);
-            permission.setObject(metaModel.getFullName());
-            permissionRepository.save(permission);
-            logger.info("Created permission: {}", permissionName);
-        } else {
-            logger.debug("Permission {} already exists, skipping creation.", permissionName);
-        }
+    @Override
+    public void setModelToApp() {
+        App app = Optional.ofNullable(appRepository.findByCode("script"))
+                .orElseThrow(() -> new IllegalStateException("App with code 'script' not found"));
+
+        AppScript appScript = Optional.ofNullable(app.getAppScript())
+                .orElseThrow(() -> new IllegalStateException("AppScript for app 'script' is not set"));
+
+        List<MetaModel> models = Optional.ofNullable(modelRepository.all().fetch())
+                .orElseThrow(() -> new IllegalStateException("Model repository returned null models list"));
+
+        appScript.setModel(models);
+        appScriptRepository.save(appScript);
     }
 
+    private void generatePermission(Role role, MetaModel metaModel) {
+        String permissionName = String.format("%s.%s", role.getName(), metaModel.getName());
+
+        Permission existingPermission = permissionRepository.findByName(permissionName);
+        if (existingPermission != null) {
+            logger.debug("Permission {} already exists, skipping creation.", permissionName);
+            return;
+        }
+
+        createAndAssignPermission(role, metaModel, permissionName);
+    }
+
+    private void createAndAssignPermission(Role role, MetaModel metaModel, String permissionName) {
+        Permission permission = new Permission();
+        permission.setCanCreate(true);
+        permission.setCanRead(true);
+        permission.setCanExport(true);
+        permission.setCanWrite(true);
+        permission.setCanRemove(true);
+        permission.setName(permissionName);
+        permission.setObject(metaModel.getFullName());
+
+        Permission savedPermission = permissionRepository.save(permission);
+
+        Set<Permission> permissions = new HashSet<>(role.getPermissions());
+        permissions.add(savedPermission);
+        role.setPermissions(permissions);
+        roleRepository.save(role);
+
+        logger.info("Created permission: {}", permissionName);
+    }
 }

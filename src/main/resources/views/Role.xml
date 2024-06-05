@@ -22,7 +22,7 @@
 
     <grid name="axelor.management.permission.grid" width="large" edit-icon="false" title="Permissions" editable="true"
           model="com.axelor.auth.db.Permission">
-        <field name="description" readonly="true"/>
+        <field name="name" readonly="true"/>
         <field name="canRead"/>
         <field name="canWrite"/>
         <field name="canCreate"/>

@@ -9,11 +9,11 @@
 
         <one-to-one ref="com.axelor.studio.db.App" name="app"/>
         <time name="chatLimit"/>
-
+        <one-to-many name="model" ref="com.axelor.meta.db.MetaModel"/>
 
         <track>
             <field name="chatLimit"/>
-
+            <field name="model"/>
         </track>
     </entity>
 
