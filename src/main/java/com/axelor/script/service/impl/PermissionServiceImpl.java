@@ -50,7 +50,7 @@ public class PermissionServiceImpl implements PermissionService {
         }
 
         models.stream()
-                .filter(MetaModel::isSelected)
+                .filter(MetaModel::getGenerate)
                 .forEach(model -> roleRepository.all().fetch()
                         .forEach(role -> generatePermission(role, model)));
 
