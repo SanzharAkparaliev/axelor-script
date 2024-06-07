@@ -5,12 +5,13 @@
 
     <form title="App Script" name="app-script-config-form"
           model="com.axelor.studio.db.AppScript" canDelete="false" canNew="false" width="large">
-        <panel name="defaultParameters" itemSpan="12">
-            <button name="importPermissions" onClick="axelor-script-set-model" showIf="model == null" title="Import Model"/>
+        <panel name="defaultParameters" itemSpan="12" height="2000">
+            <button name="importPermissions" onClick="axelor-script-set-model,save" title="Import Model"/>
 
             <field name="model" grid-view="axelor.script.model.grid"/>
-            <button name="importPermissions" onClick="axelor-script-generate-permission" title="Generate Permissions"/>
-            <button name="importFields" onClick="" title="Generate Fields"/>
+            <button name="selectAll" title="Select All" onClick="axelor.script.select.all,save"/>
+            <button name="importPermissions" onClick="axelor-script-generate-permission,save" title="Generate Permissions"/>
+            <button name="importFields" onClick="save" title="Generate Fields"/>
         </panel>
 
     </form>
@@ -21,6 +22,10 @@
 
     <action-method name="axelor-script-set-model">
         <call class="com.axelor.script.web.PermissionController" method="setModel"/>
+    </action-method>
+
+    <action-method name="axelor.script.select.all">
+        <call class="com.axelor.script.web.PermissionController" method="selectAll"/>
     </action-method>
 
     <grid name="axelor.script.model.grid" width="large" edit-icon="false" title="Models" editable="true"

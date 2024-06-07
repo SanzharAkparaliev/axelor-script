@@ -28,5 +28,12 @@ public class PermissionController {
     @Transactional
     public void setModel(ActionRequest request, ActionResponse response) {
         permissionService.setModelToApp();
+        response.setReload(true);
+    }
+
+    @Transactional
+    public void selectAll(ActionRequest request, ActionResponse response) {
+        permissionService.selectAll();
+        response.setReload(true);
     }
 }

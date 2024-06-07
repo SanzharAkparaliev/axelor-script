@@ -72,6 +72,34 @@ public class PermissionServiceImpl implements PermissionService {
         appScriptRepository.save(appScript);
     }
 
+    @Override
+    public void selectAll() {
+        if (modelRepository == null) {
+            logger.error("modelRepository is null");
+            throw new NullPointerException("modelRepository is null");
+        }
+
+        List<MetaModel> models = modelRepository.all().fetch();
+        if (models == null) {
+            logger.error("modelRepository.all().fetch() returned null");
+            throw new NullPointerException("modelRepository.all().fetch() returned null");
+        }
+
+        for (MetaModel model : models) {
+            if (model != null) {
+                try {
+                    model.setGenerate(true);
+                    modelRepository.save(model);
+                    logger.info("Model saved: " + model);
+                } catch (Exception e) {
+                    logger.error("Failed to save model: " + model + ", exception: " + e.getMessage());
+                }
+            } else {
+                logger.error("Encountered null model in list");
+            }
+        }
+    }
+
     private void generatePermission(Role role, MetaModel metaModel) {
         String permissionName = String.format("%s.%s", role.getName(), metaModel.getName());
 

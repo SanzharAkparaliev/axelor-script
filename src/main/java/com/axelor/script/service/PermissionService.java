@@ -7,4 +7,5 @@ import java.util.List;
 public interface PermissionService {
     void generateMetaPermissions(List<MetaModel> model);
     void setModelToApp();
+    void selectAll();
 }
