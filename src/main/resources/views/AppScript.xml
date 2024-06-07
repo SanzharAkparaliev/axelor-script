@@ -11,7 +11,7 @@
             <field name="model" grid-view="axelor.script.model.grid"/>
             <button name="selectAll" title="Select All" onClick="axelor.script.select.all,save"/>
             <button name="importPermissions" onClick="axelor-script-generate-permission,save" title="Generate Permissions"/>
-            <button name="importFields" onClick="save" title="Generate Fields"/>
+            <button name="importFields" onClick="axelor-script-field-permission" title="Generate Fields"/>
         </panel>
 
     </form>
@@ -26,6 +26,10 @@
 
     <action-method name="axelor.script.select.all">
         <call class="com.axelor.script.web.PermissionController" method="selectAll"/>
+    </action-method>
+
+    <action-method name="axelor-script-field-permission">
+        <call class="com.axelor.script.web.FieldController" method="generateField"/>
     </action-method>
 
     <grid name="axelor.script.model.grid" width="large" edit-icon="false" title="Models" editable="true"
