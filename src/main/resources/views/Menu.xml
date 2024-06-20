@@ -4,7 +4,8 @@
               xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_6.1.xsd">
 
 
-    <menuitem name="axelor.script.access.management.menu-item" title="User and Access Management"/>
+    <menuitem name="axelor.script.access.management.menu-item" title="Access Management"
+              if="__config__.app.isApp('script')" parent="menu-admin"/>
 
     <menuitem name="access.management.role.menu-item" title="Roles" parent="axelor.script.access.management.menu-item"
               action="access.management.role.action-view"/>
