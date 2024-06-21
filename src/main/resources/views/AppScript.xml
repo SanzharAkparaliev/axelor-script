@@ -12,6 +12,7 @@
             <button name="selectAll" title="Select All" onClick="axelor.script.select.all,save"/>
             <button name="importPermissions" onClick="axelor-script-generate-permission,save" title="Generate Permissions"/>
             <button name="importFields" onClick="axelor-script-field-permission" title="Generate Fields"/>
+            <button name="translation" onClick="axelor-script-field-translation" title="Translate"/>
         </panel>
 
     </form>
@@ -30,6 +31,10 @@
 
     <action-method name="axelor-script-field-permission">
         <call class="com.axelor.script.web.FieldController" method="generateField"/>
+    </action-method>
+
+    <action-method name="axelor-script-field-translation">
+        <call class="com.axelor.script.web.TranslationController" method="makeTranslation"/>
     </action-method>
 
     <grid name="axelor.script.model.grid" width="large" edit-icon="false" title="Models" editable="true"
