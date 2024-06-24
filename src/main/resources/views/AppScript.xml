@@ -1,42 +1,47 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <object-views xmlns="http://axelor.com/xml/ns/object-views"
-              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-              xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_5.4.xsd">
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_5.4.xsd">
 
-    <form title="App Script" name="app-script-config-form"
-          model="com.axelor.studio.db.AppScript" canDelete="false" canNew="false" width="large">
-        <panel name="defaultParameters" itemSpan="12" height="2000">
-            <button name="importPermissions" onClick="axelor-script-set-model,save" title="Import Model"/>
+  <form title="App Script" name="app-script-config-form" model="com.axelor.studio.db.AppScript"
+    canDelete="false" canNew="false" width="large">
+    <panel-tabs>
+      <panel name="defaultParameters" itemSpan="12" height="2000" title="Models">
+        <button name="importPermissions" onClick="axelor-script-set-model,save"
+          title="Import Model"/>
+        <field name="model" grid-view="axelor.script.model.grid"/>
+        <button name="selectAll" title="Select All" onClick="axelor.script.select.all,save"/>
+        <button name="importPermissions" onClick="axelor-script-generate-permission,save"
+          title="Generate Permissions"/>
+        <button name="importFields" onClick="axelor-script-field-permission"
+          title="Generate Fields"/>
+      </panel>
 
-            <field name="model" grid-view="axelor.script.model.grid"/>
-            <button name="selectAll" title="Select All" onClick="axelor.script.select.all,save"/>
-            <button name="importPermissions" onClick="axelor-script-generate-permission,save" title="Generate Permissions"/>
-            <button name="importFields" onClick="axelor-script-field-permission" title="Generate Fields"/>
-        </panel>
+      <panel-related name="Fields" field="model" title="Fields" form-view="axelor.script.field.form">
+        <field name="name" title="Model name"/>
+        <field name="metaFields" title="Fields amount"/>
 
-    </form>
+        <button name="selectAll" title="Select All" onClick="axelor.script.select.all,save"/>
+        <button name="importFields" onClick="axelor-script-field-permission"
+                title="Generate Fields"/>
+      </panel-related>
+    </panel-tabs>
+  </form>
 
-    <action-method name="axelor-script-generate-permission">
-        <call class="com.axelor.script.web.PermissionController" method="generatePermission"/>
-    </action-method>
+  <action-method name="axelor-script-generate-permission">
+    <call class="com.axelor.script.web.PermissionController" method="generatePermission"/>
+  </action-method>
 
-    <action-method name="axelor-script-set-model">
-        <call class="com.axelor.script.web.PermissionController" method="setModel"/>
-    </action-method>
+  <action-method name="axelor-script-set-model">
+    <call class="com.axelor.script.web.PermissionController" method="setModel"/>
+  </action-method>
 
-    <action-method name="axelor.script.select.all">
-        <call class="com.axelor.script.web.PermissionController" method="selectAll"/>
-    </action-method>
+  <action-method name="axelor.script.select.all">
+    <call class="com.axelor.script.web.PermissionController" method="selectAll"/>
+  </action-method>
 
-    <action-method name="axelor-script-field-permission">
-        <call class="com.axelor.script.web.FieldController" method="generateField"/>
-    </action-method>
-
-    <grid name="axelor.script.model.grid" width="large" edit-icon="false" title="Models" editable="true"
-          model="com.axelor.meta.db.MetaModel">
-        <field name="name" readonly="true"/>
-        <field name="fullName"/>
-        <field name="generate"/>
-    </grid>
+  <action-method name="axelor-script-field-permission">
+    <call class="com.axelor.script.web.FieldController" method="generateField"/>
+  </action-method>
 
 </object-views>

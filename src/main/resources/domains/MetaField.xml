@@ -5,7 +5,7 @@
 
   <module name="meta" package="com.axelor.meta.db"/>
 
-  <entity name="MetaModel">
+  <entity name="MetaField">
     <boolean name="generate" massUpdate="true"/>
     <track>
       <field name="generate"/>
