@@ -10,19 +10,17 @@
         <field name="generate"/>
     </grid>
 
-    <form title="Fields" name="axelor.script.field.form" model="com.axelor.meta.db.MetaField">
-        <panel-dashlet action="open-axelor-script-field-grid-view"/>
+    <form title="Fields" name="axelor.script.field.form" model="com.axelor.meta.db.MetaModel">
+        <panel colSpan="12">
+            <field name="name" colSpan="12"/>
+            <field name="metaFields" colSpan="12" title="Fields amount" grid-view="axelor.script.field.grid"/>
+        </panel>
     </form>
 
-    <grid name="axelor.script.field.grid" title="Fields" model="com.axelor.meta.db.MetaField" editable="true">
+    <grid name="axelor.script.field.grid" editable="true" title="Fields" model="com.axelor.meta.db.MetaField">
         <field name="metaModel"/>
         <field name="name"/>
-        <field name="generate"/>
+        <field name="generate" onChange="save"/>
     </grid>
-
-    <action-view name="open-axelor-script-field-grid-view" title="Fields">
-        <view type="grid" name="axelor.script.field.grid"/>
-        <domain>metaModel = :metaModel</domain>
-    </action-view>
 
 </object-views>

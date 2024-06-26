@@ -16,6 +16,7 @@ import com.google.inject.persist.Transactional;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
 import java.util.logging.Logger;
 
 public class FieldServiceImpl implements FieldService {
@@ -60,7 +61,7 @@ public class FieldServiceImpl implements FieldService {
     });
   }
 
-//  private void processMetaPermission(MetaPermission metaPermission) {
+  //  private void processMetaPermission(MetaPermission metaPermission) {
 //    // получаем модель
 //    MetaModel metaModel = findMetaModelByName(metaPermission.getObject());
 //    if (metaModel == null) {
@@ -95,7 +96,7 @@ private void processMetaPermission(MetaPermission metaPermission, MetaField meta
 //    int counter = 0;
 //
 //    for (MetaField metaField : metaFields) {
-//      if (!metaPermissionRuleExists(metaPermission, metaField)) {
+//      if (!metaPermissionRuleExists(metaPermission, metaField) && metaField.getGenerate() == true) {
 //        MetaPermissionRule newRule = buildMetaPermissionRule(metaField, metaPermission);
 //        MetaPermissionRule savedRule = metaPermissionRuleRepository.save(newRule);
 //        counter += 1;
@@ -106,10 +107,11 @@ private void processMetaPermission(MetaPermission metaPermission, MetaField meta
 //    logger.info("Saved metaPermissionRule amount: " + counter);
 //
 //    metaPermission.getRules().clear();
+//    logger.info("existingRules after if: " + existingRules);
 //    metaPermission.getRules().addAll(existingRules);
 //
 //    MetaPermission savedMetaPermission = metaPermissionRepository.save(metaPermission);
-//    logger.info("MetaPermission saved: " + savedMetaPermission.getId());
+//    logger.info("MetaPermission saved: " + savedMetaPermission.getName());
 //  }
 private void updateMetaPermissionRules(MetaPermission metaPermission, MetaField metaField) {
   Set<MetaPermissionRule> existingRules = new HashSet<>(metaPermission.getRules());
@@ -129,7 +131,7 @@ private void updateMetaPermissionRules(MetaPermission metaPermission, MetaField 
   metaPermission.getRules().addAll(existingRules);
 
   MetaPermission savedMetaPermission = metaPermissionRepository.save(metaPermission);
-  logger.info("MetaPermission saved: " + savedMetaPermission.getId());
+  logger.info("MetaPermission saved: " + savedMetaPermission.getName());
 }
 
   // раздает пермишен для каждого поля
