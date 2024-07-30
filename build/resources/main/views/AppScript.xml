@@ -17,9 +17,9 @@
         </panel-tabs>
         <panel>
             <button name="importPermissions" onClick="axelor-script-generate-permission,save"
-                    title="Generate Permissions"/>
-            <button name="importFields" onClick="axelor-script-field-permission" title="Generate Fields"/>
-            <button name="translation" onClick="axelor-script-field-translation" title="Translate"/>
+                    title="Generate Permissions" colSpan="4"/>
+            <button name="importFields" onClick="axelor-script-field-permission" title="Generate Fields" colSpan="4"/>
+            <button name="translation" onClick="axelor-script-field-translation" title="Translate" colSpan="4"/>
         </panel>
     </form>
 
