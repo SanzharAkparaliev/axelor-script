@@ -1,0 +1,12 @@
+---
+importId: 2000
+name: Script
+code: script
+typeSelect: standard
+installOrder: 2370
+description: |
+   Script
+image: axelor-script.png
+modules:
+   axelor-script
+languageSelect: en

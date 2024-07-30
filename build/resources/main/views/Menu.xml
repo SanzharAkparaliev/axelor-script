@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_6.1.xsd">
+
+
+  <menuitem name="axelor.script.access.management.menu-item"
+    title="User and Access Management"/>
+
+  <menuitem name="access.management.role.menu-item" title="Roles"
+    parent="axelor.script.access.management.menu-item" action="access.management.role.action-view"/>
+  <action-view name="access.management.role.action-view" title="Roles"
+    model="com.axelor.auth.db.Role">
+    <view type="grid" name="axelor.management.role.grid"/>
+    <view type="form" name="axelor.management.role.form"/>
+  </action-view>
+
+</object-views>

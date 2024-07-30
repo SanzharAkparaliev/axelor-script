@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.0.xsd">
+
+    <grid name="axelor.script.model.grid" width="large" title="Models" editable="true"
+          model="com.axelor.meta.db.MetaModel">
+        <field name="name" readonly="true"/>
+        <field name="fullName"/>
+        <field name="generate"/>
+    </grid>
+
+    <form title="Fields" name="axelor.script.field.form" model="com.axelor.meta.db.MetaModel">
+        <panel colSpan="12">
+            <field name="name" colSpan="12"/>
+            <field name="metaFields" colSpan="12" title="Fields amount" grid-view="axelor.script.field.grid"/>
+        </panel>
+    </form>
+
+    <grid name="axelor.script.field.grid" editable="true" title="Fields" model="com.axelor.meta.db.MetaField">
+        <field name="metaModel"/>
+        <field name="name"/>
+        <field name="generate" onChange="save"/>
+    </grid>
+
+</object-views>

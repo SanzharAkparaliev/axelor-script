@@ -8,17 +8,16 @@
       <panel name="defaultParameters" title="Models" height="2000" itemSpan="12">
         <button name="importPermissions" title="Import Model" onClick="axelor-script-set-model,save"/>
         <field name="model" grid-view="axelor.script.model.grid"/>
+        <button name="importPermissions" title="Generate Permissions" onClick="axelor-script-generate-permission,save"/>
       </panel>
-
       <panel-related name="Fields" title="Fields" field="model" form-view="axelor.script.field.form">
         <field name="name" title="Model name"/>
+
+          <button name="importFields" title="Generate Fields" onClick="axelor-script-field-permission"/>
       </panel-related>
 
     </panel-tabs>
-    <panel>
-      <button name="importPermissions" title="Generate Permissions" onClick="axelor-script-generate-permission,save"/>
-      <button name="importFields" title="Generate Fields" onClick="axelor-script-field-permission"/>
-    </panel>
+
   </form>
 
 
