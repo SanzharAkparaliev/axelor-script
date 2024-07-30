@@ -1,0 +1,22 @@
+<?xml version="1.0" ?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models http://axelor.com/xml/ns/domain-models/domain-models_6.1.xsd">
+
+  <module name="studio" package="com.axelor.studio.db"/>
+
+  <entity name="WkfDmnModel" cacheable="true">
+
+    <string name="name" title="Name"/>
+    <string name="description" title="Description" large="true"/>
+    <string name="diagramXml" title="Diagram xml" large="true"/>
+    <many-to-many name="metaModelSet" ref="com.axelor.meta.db.MetaModel" title="Models"/>
+    <many-to-many name="jsonModelSet" ref="com.axelor.meta.db.MetaJsonModel"
+      title="Custom models"/>
+    <one-to-many name="dmnTableList" ref="DmnTable" title="Decision tables"
+      mappedBy="wkfDmnModel"/>
+    <many-to-one name="studioApp" ref="com.axelor.studio.db.StudioApp" title="App"/>
+
+  </entity>
+
+</domain-models>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_5.4.xsd">
+
+    <form name="app-script-config-form" title="App Script" model="com.axelor.studio.db.AppScript" width="large"
+          canNew="false" canDelete="false">
+        <panel-tabs>
+            <panel name="defaultParameters" title="Models" height="2000" itemSpan="12">
+                <button name="importPermissions" title="Import Model" onClick="axelor-script-set-model,save"/>
+                <field name="model" grid-view="axelor.script.model.grid"/>
+            </panel>
+
+            <panel-related name="Fields" title="Fields" field="model" form-view="axelor.script.field.form">
+                <field name="name" title="Model name"/>
+            </panel-related>
+        </panel-tabs>
+        <panel>
+            <button name="importPermissions" onClick="axelor-script-generate-permission,save"
+                    title="Generate Permissions"/>
+            <button name="importFields" onClick="axelor-script-field-permission" title="Generate Fields"/>
+            <button name="translation" onClick="axelor-script-field-translation" title="Translate"/>
+        </panel>
+    </form>
+
+
+    <action-method name="axelor-script-generate-permission">
+        <call class="com.axelor.script.web.PermissionController" method="generatePermission"/>
+    </action-method>
+
+    <action-method name="axelor-script-set-model">
+        <call class="com.axelor.script.web.PermissionController" method="setModel"/>
+    </action-method>
+
+    <action-method name="axelor-script-field-permission">
+        <call class="com.axelor.script.web.FieldController" method="generateField"/>
+    </action-method>
+
+    <action-method name="axelor-script-field-translation">
+        <call class="com.axelor.script.web.TranslationController" method="makeTranslation"/>
+    </action-method>
+
+    <action-method name="axelor-script-field-permission">
+        <call class="com.axelor.script.web.FieldController" method="generateField"/>
+    </action-method>
+
+</object-views>
