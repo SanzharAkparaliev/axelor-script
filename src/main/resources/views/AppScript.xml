@@ -3,6 +3,19 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_5.4.xsd">
 
+    <form title="App Script" name="app-script-config-form"
+          model="com.axelor.studio.db.AppScript" canDelete="false" canNew="false" width="large">
+        <panel name="defaultParameters" itemSpan="12" height="2000">
+            <button name="importPermissions" onClick="axelor-script-set-model,save" title="Import Model"/>
+
+            <field name="model" grid-view="axelor.script.model.grid"/>
+            <button name="selectAll" title="Select All" onClick="axelor.script.select.all,save"/>
+            <button name="importPermissions" onClick="axelor-script-generate-permission,save" title="Generate Permissions"/>
+            <button name="importFields" onClick="axelor-script-field-permission" title="Generate Fields"/>
+            <button name="translation" onClick="axelor-script-field-translation" title="Translate"/>
+        </panel>
+
+    </form>
   <form name="app-script-config-form" title="App Script" model="com.axelor.studio.db.AppScript" width="large" canNew="false" canDelete="false">
     <panel-tabs>
       <panel name="defaultParameters" title="Models" height="2000" itemSpan="12">
@@ -30,6 +43,17 @@
     <call class="com.axelor.script.web.PermissionController" method="setModel"/>
   </action-method>
 
+    <action-method name="axelor.script.select.all">
+        <call class="com.axelor.script.web.PermissionController" method="selectAll"/>
+    </action-method>
+
+    <action-method name="axelor-script-field-permission">
+        <call class="com.axelor.script.web.FieldController" method="generateField"/>
+    </action-method>
+
+    <action-method name="axelor-script-field-translation">
+        <call class="com.axelor.script.web.TranslationController" method="makeTranslation"/>
+    </action-method>
   <action-method name="axelor-script-field-permission">
     <call class="com.axelor.script.web.FieldController" method="generateField"/>
   </action-method>
