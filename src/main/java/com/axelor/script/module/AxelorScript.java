@@ -9,10 +9,10 @@ import com.axelor.script.service.impl.FieldServiceImpl;
 import com.axelor.script.service.impl.PermissionServiceImpl;
 
 public class AxelorScript extends AxelorModule {
-    @Override
-    protected void configure() {
-        bind(PermissionService.class).to(PermissionServiceImpl.class);
-        bind(FieldService.class).to(FieldServiceImpl.class);
-        bind(DictionaryService.class).to(DictionaryServiceImpl.class);
-    }
+  @Override
+  protected void configure() {
+    bind(PermissionService.class).to(PermissionServiceImpl.class);
+    bind(FieldService.class).to(FieldServiceImpl.class);
+    bind(DictionaryService.class).to(DictionaryServiceImpl.class);
+  }
 }

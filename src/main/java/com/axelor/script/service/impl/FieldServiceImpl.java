@@ -1,7 +1,7 @@
 package com.axelor.script.service.impl;
 
-import com.axelor.auth.db.repo.PermissionRepository;
-import com.axelor.db.Query;
+import com.axelor.auth.db.Role;
+import com.axelor.auth.db.repo.RoleRepository;
 import com.axelor.meta.db.MetaField;
 import com.axelor.meta.db.MetaModel;
 import com.axelor.meta.db.MetaPermission;
@@ -11,134 +11,182 @@ import com.axelor.meta.db.repo.MetaPermissionRepository;
 import com.axelor.meta.db.repo.MetaPermissionRuleRepository;
 import com.axelor.script.service.FieldService;
 import com.google.inject.Inject;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class FieldServiceImpl implements FieldService {
-    private static final Logger logger = Logger.getLogger(FieldServiceImpl.class.getName());
+  private static final Logger logger = Logger.getLogger(FieldServiceImpl.class.getName());
 
-    private final MetaModelRepository metaModelRepository;
-    private final MetaPermissionRuleRepository metaPermissionRuleRepository;
-    private final MetaPermissionRepository metaPermissionRepository;
-    private final PermissionRepository permissionRepository;
+  private final MetaModelRepository metaModelRepository;
+  private final MetaPermissionRuleRepository metaPermissionRuleRepository;
+  private final MetaPermissionRepository metaPermissionRepository;
+  private final RoleRepository roleRepository;
 
-    @Inject
-    public FieldServiceImpl(
-            MetaModelRepository metaModelRepository,
-            MetaPermissionRuleRepository metaPermissionRuleRepository,
-            MetaPermissionRepository metaPermissionRepository,
-            PermissionRepository permissionRepository) {
-        this.metaModelRepository = metaModelRepository;
-        this.metaPermissionRuleRepository = metaPermissionRuleRepository;
-        this.metaPermissionRepository = metaPermissionRepository;
-        this.permissionRepository = permissionRepository;
+  @Inject
+  public FieldServiceImpl(
+      MetaModelRepository metaModelRepository,
+      MetaPermissionRuleRepository metaPermissionRuleRepository,
+      MetaPermissionRepository metaPermissionRepository,
+      RoleRepository roleRepository) {
+    this.metaModelRepository = metaModelRepository;
+    this.metaPermissionRuleRepository = metaPermissionRuleRepository;
+    this.metaPermissionRepository = metaPermissionRepository;
+    this.roleRepository = roleRepository;
+  }
+
+  @Override
+  public void generateMetaPermissionRules(List<MetaModel> models) {
+    if (models == null) {
+      logger.severe("models list is null");
+      return;
     }
+    logger.info("Started generating meta permissions.");
 
-    @Override
-    public void generateMetaPermissionRules(List<MetaModel> models) {
-        if (models == null) {
-            logger.severe("models list is null");
-            return;
-        }
+    roleRepository
+        .all()
+        .fetch()
+        .forEach(
+            role -> {
+              Set<MetaPermission> metaPermissionsSet = new HashSet<>();
 
-        models.forEach(metaModel -> {
-            if (metaModel == null) {
-                logger.warning("metaModel is null in models list");
-                return;
-            }
-
-            List<MetaField> metaFields = scriptFindByModel(metaModel);
-            if (metaFields == null || metaFields.isEmpty()) {
-                logger.warning("No MetaFields found for MetaModel: " + metaModel.getFullName());
-                return;
-            }
-
-            for (MetaField metaField : metaFields) {
-                if (metaField == null) {
-                    logger.warning("metaField is null in metaFields list for MetaModel: " + metaModel.getFullName());
-                    continue;
+              for (MetaModel metaModel : models) {
+                List<MetaField> metaFields = scriptFindByModel(metaModel);
+                if (metaFields == null || metaFields.isEmpty()) {
+                  continue;
                 }
 
-                if (metaField.getGenerate()) {
-                    System.out.println(metaField.getName());
-                    List<MetaPermission> metaPermissions = metaPermissionRepository.all().fetch();
-                    if (metaPermissions == null || metaPermissions.isEmpty()) {
-                        logger.warning("No MetaPermissions found");
-                        continue;
-                    }
+                boolean hasGeneratableFields = metaFields.stream().anyMatch(MetaField::getGenerate);
 
-                    metaPermissions.forEach(metaPermission -> {
-                        if (metaPermission == null) {
-                            logger.warning("metaPermission is null in metaPermissions list");
-                            return;
-                        }
+                if (hasGeneratableFields) {
+                  MetaPermission metaPermission = generatePermission(role, metaModel);
+                  metaPermissionsSet.add(metaPermission);
 
-                        processMetaPermission(metaPermission, metaField);
-                    });
+                  metaFields.stream()
+                      .filter(MetaField::getGenerate)
+                      .forEach(
+                          metaField -> {
+                            logger.info("Processing field: " + metaField.getName());
+                            processMetaPermission(metaPermission, metaField);
+                          });
+                } else {
+                  logger.info(
+                      "No generatable fields found for MetaModel: "
+                          + metaModel.getFullName()
+                          + ", skipping MetaPermission creation.");
                 }
-            }
-        });
+              }
+
+              role.setMetaPermissions(metaPermissionsSet);
+              roleRepository.save(role);
+            });
+
+    logger.info("Finished generating meta permissions.");
+  }
+
+  private MetaPermission generatePermission(Role role, MetaModel metaModel) {
+    String permissionName = String.format("%s.%s", role.getName(), metaModel.getName());
+    MetaPermission metaPermission = findOrCreateMetaPermission(metaModel, permissionName);
+
+    initializeMetaPermissionRules(metaPermission, metaModel);
+
+    return metaPermission;
+  }
+
+  private MetaPermission findOrCreateMetaPermission(MetaModel metaModel, String permissionName) {
+    MetaPermission metaPermission =
+        metaPermissionRepository
+            .all()
+            .filter("self.name = :name")
+            .bind("name", permissionName)
+            .fetchOne();
+    MetaModel model =
+        metaModelRepository.all().filter("self.id = :id").bind("id", metaModel.getId()).fetchOne();
+
+    if (metaPermission == null) {
+      metaPermission = new MetaPermission();
+      metaPermission.setName(permissionName);
+      metaPermission.setObject(model.getFullName());
+      metaPermission = metaPermissionRepository.save(metaPermission);
+      logger.info(
+          "Created new MetaPermission: "
+              + metaPermission.getName()
+              + " for MetaModel: "
+              + model.getFullName());
     }
 
-    private void processMetaPermission(MetaPermission metaPermission, MetaField metaField) {
-        MetaModel metaModel = findMetaModelByName(metaPermission.getObject());
-        if (metaModel == null) {
-            logger.warning("MetaModel not found for MetaPermission object: " + metaPermission.getObject());
-            return;
-        }
+    return metaPermission;
+  }
 
-        updateMetaPermissionRules(metaPermission, metaField);
+  private void initializeMetaPermissionRules(MetaPermission metaPermission, MetaModel metaModel) {
+    if (metaPermission.getRules() == null) {
+      metaPermission.setRules(new ArrayList<>());
     }
 
-    private MetaModel findMetaModelByName(String name) {
-        return metaModelRepository.all().filter("self.fullName = :name").bind("name", name).fetchOne();
+    if (metaPermission.getRules().isEmpty()) {
+      List<MetaField> metaFields = scriptFindByModel(metaModel);
+      metaFields.stream()
+          .filter(MetaField::getGenerate)
+          .forEach(
+              metaField -> {
+                MetaPermissionRule rule = buildMetaPermissionRule(metaField, metaPermission);
+                metaPermission.getRules().add(rule);
+                metaPermissionRuleRepository.save(rule);
+              });
+      metaPermissionRepository.save(metaPermission);
+    }
+  }
+
+  private void processMetaPermission(MetaPermission metaPermission, MetaField metaField) {
+    if (metaPermission == null) {
+      logger.warning("MetaPermission is null for MetaField: " + metaField.getName());
+      return;
     }
 
-    private void updateMetaPermissionRules(MetaPermission metaPermission, MetaField metaField) {
-        Set<MetaPermissionRule> existingRules = new HashSet<>(metaPermission.getRules());
-        logger.info("existingRules: " + existingRules);
-        int counter = 0;
+    updateMetaPermissionRules(metaPermission, metaField);
+  }
 
-        if (!metaPermissionRuleExists(metaPermission, metaField)) {
-            MetaPermissionRule newRule = buildMetaPermissionRule(metaField, metaPermission);
-            MetaPermissionRule savedRule = metaPermissionRuleRepository.save(newRule);
-            counter += 1;
-            logger.info("MetaPermissionRule saved: " + savedRule.getId());
-            existingRules.add(savedRule);
-        }
-        logger.info("Saved metaPermissionRule amount: " + counter);
+  private void updateMetaPermissionRules(MetaPermission metaPermission, MetaField metaField) {
+    Set<MetaPermissionRule> existingRules =
+        new HashSet<>(
+            metaPermission.getRules() != null ? metaPermission.getRules() : Collections.emptySet());
+    logger.info(
+        "Existing rules for MetaPermission " + metaPermission.getName() + ": " + existingRules);
 
-        metaPermission.getRules().clear();
-        metaPermission.getRules().addAll(existingRules);
-
-        MetaPermission savedMetaPermission = metaPermissionRepository.save(metaPermission);
-        logger.info("MetaPermission saved: " + savedMetaPermission.getName());
+    if (!metaPermissionRuleExists(metaPermission, metaField)) {
+      MetaPermissionRule newRule = buildMetaPermissionRule(metaField, metaPermission);
+      MetaPermissionRule savedRule = metaPermissionRuleRepository.save(newRule);
+      existingRules.add(savedRule);
+      logger.info("MetaPermissionRule saved: " + savedRule.getId());
     }
 
-    private MetaPermissionRule buildMetaPermissionRule(
-            MetaField metaField, MetaPermission metaPermission) {
-        MetaPermissionRule metaPermissionRule = new MetaPermissionRule();
-        metaPermissionRule.setField(metaField.getName());
-        metaPermissionRule.setCanRead(true);
-        metaPermissionRule.setCanExport(true);
-        metaPermissionRule.setCanWrite(true);
-        metaPermissionRule.setMetaPermission(metaPermission);
-        return metaPermissionRule;
-    }
+    metaPermission.getRules().clear();
+    metaPermission.getRules().addAll(existingRules);
 
-    private boolean metaPermissionRuleExists(MetaPermission metaPermission, MetaField metaField) {
-        return metaPermission.getRules().stream()
-                .anyMatch(rule -> rule.getField().equals(metaField.getName()));
-    }
+    MetaPermission savedMetaPermission = metaPermissionRepository.save(metaPermission);
+    logger.info("MetaPermission saved: " + savedMetaPermission.getName());
+  }
 
-    private List<MetaField> scriptFindByModel(MetaModel metaModel) {
-        if (metaModel == null) {
-            logger.severe("metaModel cannot be null");
-            throw new IllegalArgumentException("metaModel cannot be null");
-        }
-        return metaModel.getMetaFields();
+  private MetaPermissionRule buildMetaPermissionRule(
+      MetaField metaField, MetaPermission metaPermission) {
+    MetaPermissionRule metaPermissionRule = new MetaPermissionRule();
+    metaPermissionRule.setField(metaField.getName());
+    metaPermissionRule.setCanRead(true);
+    metaPermissionRule.setCanExport(true);
+    metaPermissionRule.setCanWrite(true);
+    metaPermissionRule.setMetaPermission(metaPermission);
+    return metaPermissionRule;
+  }
+
+  private boolean metaPermissionRuleExists(MetaPermission metaPermission, MetaField metaField) {
+    return metaPermission.getRules().stream()
+        .anyMatch(rule -> rule.getField().equals(metaField.getName()));
+  }
+
+  private List<MetaField> scriptFindByModel(MetaModel metaModel) {
+    if (metaModel == null) {
+      logger.severe("metaModel cannot be null");
+      throw new IllegalArgumentException("metaModel cannot be null");
     }
+    return metaModel.getMetaFields();
+  }
 }

@@ -17,8 +17,8 @@
       </panel>
       <panel title="Fields">
         <panel-related name="PanelField" colSpan="12" field="metaPermissions"
-          height="700" form-view="false" grid-view="axelor.management.field.grid" canEdit="true"
-          editable="true"/>
+          height="700" form-view="meta-permission-form" grid-view="axelor.management.field.grid"
+          canEdit="true" editable="true"/>
       </panel>
     </panel-tabs>
   </form>
